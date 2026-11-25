@@ -27,7 +27,7 @@ export function LoginPage() {
             <Server className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold">ProxmoxCloud Manager</h1>
+            <h1 className="text-xl font-semibold">TP Cloud Manager</h1>
             <p className="text-xs text-slate-500 dark:text-zinc-400">
               Standalone Multi-Node Cloud Console
             </p>

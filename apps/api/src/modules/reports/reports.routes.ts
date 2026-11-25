@@ -140,7 +140,7 @@ export async function reportsRoutes(app: FastifyInstance): Promise<void> {
       const docDefinition = {
         defaultStyle: { font: 'Helvetica', fontSize: 9 },
         content: [
-          { text: `ProxmoxCloud Manager - ${type.toUpperCase()} Report`, fontSize: 14, bold: true, margin: [0, 0, 0, 10] as [number, number, number, number] },
+          { text: `TP Cloud Manager - ${type.toUpperCase()} Report`, fontSize: 14, bold: true, margin: [0, 0, 0, 10] as [number, number, number, number] },
           {
             table: {
               headerRows: 1,

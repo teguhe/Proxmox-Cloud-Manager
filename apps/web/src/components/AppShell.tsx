@@ -95,7 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="h-14 flex items-center justify-between px-4 border-b border-[#E2E8F0] dark:border-[#27272A]">
           {!collapsed && (
             <span className="font-semibold text-sm tracking-tight text-[#2563EB] dark:text-[#3B82F6]">
-              ProxmoxCloud
+              TP Cloud Manager
             </span>
           )}
           <button

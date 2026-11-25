@@ -1,4 +1,4 @@
-# ProxmoxCloud Manager
+# TP Cloud Manager
 
 Aplikasi manajemen Virtual Private Server (VPS) berbasis web terpusat untuk mengelola beberapa node **Proxmox VE standalone** secara aman melalui satu antarmuka *Clean Modern Cloud Console* (Light/Dark Mode), lengkap dengan autentikasi Firebase Google, kontrol akses granular (RBAC), provisioning VM/LXC multi-metode, akses Console (`noVNC`) & SSH over HTTPS (`xterm.js`), statistik RRD real-time, pelaporan (PDF/XLSX/CSV), dan audit log.
 
