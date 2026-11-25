@@ -35,6 +35,12 @@ export function VncConsoleModal({
         rfb.resizeSession = true;
         rfb.addEventListener('connect', () => setStatus('Connected'));
         rfb.addEventListener('disconnect', () => setStatus('Disconnected'));
+        rfb.addEventListener('credentialsrequired', () => {
+          setStatus('Credentials required by Proxmox VNC');
+        });
+        rfb.addEventListener('securityfailure', () => {
+          setStatus('VNC Security failure');
+        });
       } catch (err) {
         setStatus(err instanceof Error ? err.message : 'VNC connection failed');
       }
