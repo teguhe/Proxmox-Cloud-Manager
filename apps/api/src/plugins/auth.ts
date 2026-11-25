@@ -49,7 +49,11 @@ export async function verifyBearerOnly(
 
   try {
     request.firebaseUser = await verifyFirebaseIdToken(token);
-  } catch {
+  } catch (err) {
+    request.log.warn(
+      { err: err instanceof Error ? err.message : String(err) },
+      'Firebase ID token verification failed'
+    );
     await reply.code(401).send({ error: 'Invalid or expired Firebase ID token' });
   }
 }
