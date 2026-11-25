@@ -14,11 +14,15 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "dotenv": "^18.0.10",
+    "drizzle-orm": "^0.45.4",
+    "postgres": "^4.1.1",
     "shared": "workspace:*",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
+    "drizzle-kit": "^0.31.11",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"

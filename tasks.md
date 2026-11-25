@@ -21,11 +21,11 @@ Gunakan daftar tugas ini secara berurutan. Centang `[x]` hanya setelah perintah 
 ---
 
 ## Phase 2: Database & Core Models
-- [ ] **T2.1: Drizzle ORM Schema & Migrations**
+- [x] **T2.1: Drizzle ORM Schema & Migrations**
   - **Input:** `prd.md` Section 6.
   - **Deliverable:** `apps/api/src/db/schema.ts`, `drizzle.config.ts`, migrasi SQL untuk tabel `users`, `proxmox_nodes`, `operator_vps_assignments`, `activity_logs`.
   - **Verification:** `pnpm --filter api db:push` atau `db:migrate` berhasil membuat 4 tabel di PostgreSQL.
-- [ ] **T2.2: Crypto & Activity Log Service**
+- [x] **T2.2: Crypto & Activity Log Service**
   - **Input:** `prd.md` Section 8.
   - **Deliverable:** `apps/api/src/utils/crypto.ts` (AES-256-GCM encrypt/decrypt), `apps/api/src/services/audit.service.ts` (helper pencatatan log otomatis).
   - **Verification:** Unit test enkripsi/dekripsi lolos (`pnpm --filter api test`).
