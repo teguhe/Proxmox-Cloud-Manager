@@ -89,11 +89,11 @@ Gunakan daftar tugas ini secara berurutan. Centang `[x]` hanya setelah perintah 
 ---
 
 ## Phase 5: Integration, Edge Cases & Testing
-- [ ] **T5.1: Automated Backend & RBAC Tests**
+- [x] **T5.1: Automated Backend & RBAC Tests**
   - **Input:** `prd.md` Sections 4 & 8.
   - **Deliverable:** Suite test Vitest untuk RBAC matrix (5 role), proteksi `teguhe@gmail.com`, validasi multi-VPS operator isolation, dan AES-256-GCM encryption.
   - **Verification:** `pnpm --filter api test` 100% pass.
-- [ ] **T5.2: End-to-End Integration & WebSocket Check**
+- [x] **T5.2: End-to-End Integration & WebSocket Check**
   - **Input:** Full stack running via Docker Compose.
   - **Deliverable:** Verifikasi login Firebase, penambahan node Proxmox, power action, noVNC/SSH handshake, RRD charts, dan ekspor laporan.
   - **Verification:** Tidak ada console error atau unhandled rejection di browser/server logs.
