@@ -10,9 +10,20 @@ import { decryptSecret } from '../utils/crypto.js';
 import { consumeWsTicket } from './ticket-store.js';
 
 function bridgeSockets(clientWs: WebSocket, upstreamWs: WebSocket): void {
+  const pending: Array<{ data: WebSocket.RawData; isBinary: boolean }> = [];
+
+  upstreamWs.on('open', () => {
+    for (const item of pending) {
+      upstreamWs.send(item.data, { binary: item.isBinary });
+    }
+    pending.length = 0;
+  });
+
   clientWs.on('message', (data, isBinary) => {
     if (upstreamWs.readyState === WebSocket.OPEN) {
       upstreamWs.send(data, { binary: isBinary });
+    } else if (upstreamWs.readyState === WebSocket.CONNECTING) {
+      pending.push({ data, isBinary });
     }
   });
 
@@ -34,7 +45,8 @@ function bridgeSockets(clientWs: WebSocket, upstreamWs: WebSocket): void {
     if (upstreamWs.readyState === WebSocket.OPEN) upstreamWs.close();
   });
 
-  upstreamWs.on('error', () => {
+  upstreamWs.on('error', (err) => {
+    console.error('[WS Bridge] Upstream error:', err.message);
     if (clientWs.readyState === WebSocket.OPEN) clientWs.close();
   });
 }
