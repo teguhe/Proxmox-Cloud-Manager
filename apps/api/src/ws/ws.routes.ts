@@ -196,6 +196,7 @@ export async function wsRoutes(app: FastifyInstance): Promise<void> {
 
         upstream.on('open', () => {
           upstream.send(`${proxy.user}:${proxy.ticket}\n`);
+          upstream.send('1:80:24:\n');
         });
 
         await recordActivityLog({
@@ -208,7 +209,28 @@ export async function wsRoutes(app: FastifyInstance): Promise<void> {
           ipAddress: request.ip,
         });
 
-        bridgeSockets(socket, upstream);
+        socket.on('message', (data) => {
+          if (upstream.readyState !== WebSocket.OPEN) return;
+          const text = data.toString('utf8');
+          upstream.send(`0:${Buffer.byteLength(text)}:${text}`);
+        });
+
+        upstream.on('message', (data, isBinary) => {
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(data, { binary: isBinary });
+          }
+        });
+
+        socket.on('close', () => {
+          if (upstream.readyState === WebSocket.OPEN) upstream.close();
+        });
+        upstream.on('close', () => {
+          if (socket.readyState === WebSocket.OPEN) socket.close();
+        });
+        upstream.on('error', (err) => {
+          console.error('[Termproxy] Upstream error:', err.message);
+          if (socket.readyState === WebSocket.OPEN) socket.close();
+        });
       } catch {
         socket.close(1011, 'Failed to establish Termproxy bridge');
       }
