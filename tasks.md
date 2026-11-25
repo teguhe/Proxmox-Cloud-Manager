@@ -33,27 +33,27 @@ Gunakan daftar tugas ini secara berurutan. Centang `[x]` hanya setelah perintah 
 ---
 
 ## Phase 3: Backend API, Proxmox Client & WebSocket Proxies
-- [ ] **T3.1: Fastify Core, Firebase Auth & RBAC Middleware**
+- [x] **T3.1: Fastify Core, Firebase Auth & RBAC Middleware**
   - **Input:** `prd.md` Sections 4 & 7.
   - **Deliverable:** Setup Fastify, Firebase Admin SDK verification plugin, `POST /api/v1/auth/sync` (auto-assign `teguhe@gmail.com` sebagai `super_admin` dengan `is_protected=true`, user baru lain `no_access`), `GET /api/v1/auth/me`, middleware `requireRole(...)` & `requireVpsAccess()`.
   - **Verification:** Test endpoint `/auth/me` menolak request tanpa token (`401`) dan memblokir `no_access` (`403`).
-- [ ] **T3.2: Proxmox VE Standalone API Client**
+- [x] **T3.2: Proxmox VE Standalone API Client**
   - **Input:** `prd.md` Sections 5 & 7.
   - **Deliverable:** `apps/api/src/services/proxmox.service.ts` menggunakan `undici` dengan `Authorization: PVEAPIToken=...`, dukungan toggle `verify_tls`, timeout 5s, metode: `getVersion`, `getNodeStatus`, `listVmsAndLxc`, `getStorageAndTemplates`, `cloneVm`, `createIsoVm`, `createLxc`, `powerAction`, `getRrdData`, `createVncProxy`, `createTermProxy`, `getTaskStatus`.
   - **Verification:** `pnpm --filter api typecheck` bersih.
-- [ ] **T3.3: Nodes, Users & Assignments REST Modules**
+- [x] **T3.3: Nodes, Users & Assignments REST Modules**
   - **Input:** `prd.md` Section 7.
   - **Deliverable:** Route CRUD `/api/v1/nodes` (+ `/test` dan `/resources`), `/api/v1/users` (proteksi mutasi `is_protected` & `super_admin`), dan `/api/v1/assignments` (multi-VPS mapping per operator).
   - **Verification:** Integration test memastikan `teguhe@gmail.com` tidak bisa dihapus atau diubah rolenya.
-- [ ] **T3.4: VPS Management, Provisioning & RRD Stats Routes**
+- [x] **T3.4: VPS Management, Provisioning & RRD Stats Routes**
   - **Input:** `prd.md` Section 7.
   - **Deliverable:** Route `/api/v1/vms` (agregasi paralel `Promise.allSettled` lintas node + filter RBAC), endpoint provisioning (`clone`, `iso`, `lxc`), power control, task polling, dan endpoint `/api/v1/stats/.../rrd`.
   - **Verification:** `pnpm --filter api typecheck` bersih & endpoint merespons sesuai skema Zod.
-- [ ] **T3.5: WebSocket Proxies (noVNC, termproxy, Direct SSH)**
+- [x] **T3.5: WebSocket Proxies (noVNC, termproxy, Direct SSH)**
   - **Input:** `prd.md` Section 7 (Remote Access).
   - **Deliverable:** Short-lived WS ticket store (TTL 30s), handler `/ws/vnc/...` (bridge ke Proxmox `vncwebsocket`), `/ws/termproxy/...` (bridge ke Proxmox `termproxy`), dan `/ws/ssh/...` (WebSocket-to-SSH menggunakan `ssh2` dengan auth frame awal).
   - **Verification:** Koneksi WS tanpa tiket valid ditolak (`4001`/`403`), koneksi valid meneruskan stream biner/teks dua arah.
-- [ ] **T3.6: Activity Logs & Report Export Engine**
+- [x] **T3.6: Activity Logs & Report Export Engine**
   - **Input:** `prd.md` Section 7 (Reports & Logs).
   - **Deliverable:** Endpoint `/api/v1/logs` (paginated & filterable) dan `/api/v1/reports/export` untuk 3 jenis laporan (`inventory`, `allocation`, `logs`) dalam 3 format (`pdf`, `xlsx`, `csv`).
   - **Verification:** Request export mengembalikan header `Content-Type` & `Content-Disposition` valid dengan file non-kosong.
