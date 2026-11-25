@@ -5,15 +5,15 @@ Gunakan daftar tugas ini secara berurutan. Centang `[x]` hanya setelah perintah 
 ---
 
 ## Phase 1: Project Setup & Environment Scaffolding
-- [ ] **T1.1: Monorepo Initialization**
+- [x] **T1.1: Monorepo Initialization**
   - **Input:** `prd.md` Section 2.
   - **Deliverable:** Struktur workspace `pnpm` (`apps/api`, `apps/web`, `packages/shared`), root `package.json`, `tsconfig.base.json`, `.env.example`, `.gitignore`.
   - **Verification:** `pnpm install` berjalan bersih tanpa error.
-- [ ] **T1.2: Shared Types & Zod Schemas**
+- [x] **T1.2: Shared Types & Zod Schemas**
   - **Input:** `prd.md` Sections 4, 6, 7.
   - **Deliverable:** `packages/shared/src/types.ts` & `schemas.ts` (enum `UserRole`, `VmType`, DTO Node, DTO Provisioning Clone/ISO/LXC, DTO Assignment, DTO Log).
   - **Verification:** `pnpm --filter shared build` sukses.
-- [ ] **T1.3: Docker Compose & Local PostgreSQL**
+- [x] **T1.3: Docker Compose & Local PostgreSQL**
   - **Input:** `prd.md` Section 2.
   - **Deliverable:** `docker-compose.yml` (service `postgres`, `api`, `web` + Nginx reverse proxy untuk `/api` dan `/ws`), `apps/api/Dockerfile`, `apps/web/Dockerfile`.
   - **Verification:** `docker compose up -d postgres` aktif dan port 5432 merespons.
