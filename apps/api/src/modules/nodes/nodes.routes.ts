@@ -55,7 +55,11 @@ export async function nodesRoutes(app: FastifyInstance): Promise<void> {
               uptime: status.uptime,
               pveVersion: version.version,
             };
-          } catch {
+          } catch (err) {
+            console.error(
+              `[Nodes] Status check failed for ${node.name} (${node.host}:${node.port}/${node.pveNodeName}):`,
+              err instanceof Error ? err.message : err
+            );
             return { ...base, status: 'unreachable' as const };
           }
         })
