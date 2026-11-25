@@ -20,23 +20,32 @@ export function VncConsoleModal({
 
     async function connect() {
       try {
-        const { wsToken } = await apiFetch<{ wsToken: string }>(
-          `/vms/${vm.nodeId}/${vm.vmType}/${vm.vmid}/console-ticket`,
-          { method: 'POST' }
-        );
+        const { wsToken, vncTicket } = await apiFetch<{
+          wsToken: string;
+          vncTicket?: string;
+        }>(`/vms/${vm.nodeId}/${vm.vmType}/${vm.vmid}/console-ticket`, {
+          method: 'POST',
+          body: JSON.stringify({ mode: 'vnc' }),
+        });
         if (cancelled || !containerRef.current) return;
 
         setStatus('Connecting to VNC...');
         const wsUrl = getWsUrl(
           `/vnc/${vm.nodeId}/${vm.vmType}/${vm.vmid}?token=${encodeURIComponent(wsToken)}`
         );
-        rfb = new RFB(containerRef.current, wsUrl);
+        rfb = new RFB(containerRef.current, wsUrl, {
+          credentials: { password: vncTicket ?? '' },
+        });
         rfb.scaleViewport = true;
         rfb.resizeSession = true;
         rfb.addEventListener('connect', () => setStatus('Connected'));
         rfb.addEventListener('disconnect', () => setStatus('Disconnected'));
         rfb.addEventListener('credentialsrequired', () => {
-          setStatus('Credentials required by Proxmox VNC');
+          if (vncTicket) {
+            rfb?.sendCredentials({ password: vncTicket });
+          } else {
+            setStatus('Credentials required by Proxmox VNC');
+          }
         });
         rfb.addEventListener('securityfailure', () => {
           setStatus('VNC Security failure');

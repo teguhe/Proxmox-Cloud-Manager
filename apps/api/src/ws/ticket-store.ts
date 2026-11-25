@@ -8,6 +8,8 @@ export interface WsTicketPayload {
   nodeId: string;
   vmType: VmType;
   vmid: number;
+  vncPort?: number;
+  vncTicket?: string;
   expiresAt: number;
 }
 

@@ -98,7 +98,10 @@ export async function wsRoutes(app: FastifyInstance): Promise<void> {
         verifyTls: node.verifyTls,
       });
 
-      const proxy = await client.createVncProxy(vmTypeParsed.data, vmid);
+      const proxy =
+        ticket.vncPort && ticket.vncTicket
+          ? { port: ticket.vncPort, ticket: ticket.vncTicket }
+          : await client.createVncProxy(vmTypeParsed.data, vmid);
       const pveWsUrl = `wss://${node.host}:${node.port}/api2/json/nodes/${encodeURIComponent(
         node.pveNodeName
       )}/${vmTypeParsed.data}/${vmid}/vncwebsocket?port=${proxy.port}&vncticket=${encodeURIComponent(

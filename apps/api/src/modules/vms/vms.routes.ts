@@ -272,6 +272,18 @@ export async function vmsRoutes(app: FastifyInstance): Promise<void> {
       }
 
       const vmid = Number(request.params.vmid);
+      const body = (request.body ?? {}) as { mode?: string };
+      let vncPort: number | undefined;
+      let vncTicket: string | undefined;
+
+      if (body.mode === 'vnc') {
+        const found = await getNodeClient(request.params.nodeId);
+        if (!found) return reply.code(404).send({ error: 'Node not found' });
+        const proxy = await found.client.createVncProxy(vmTypeParsed.data, vmid);
+        vncPort = proxy.port;
+        vncTicket = proxy.ticket;
+      }
+
       const wsToken = issueWsTicket({
         userId: request.currentUser!.id,
         userEmail: request.currentUser!.email,
@@ -279,9 +291,11 @@ export async function vmsRoutes(app: FastifyInstance): Promise<void> {
         nodeId: request.params.nodeId,
         vmType: vmTypeParsed.data,
         vmid,
+        vncPort,
+        vncTicket,
       });
 
-      return reply.send({ wsToken, expiresInSeconds: 30 });
+      return reply.send({ wsToken, vncTicket, expiresInSeconds: 30 });
     }
   );
 }
