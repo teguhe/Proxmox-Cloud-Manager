@@ -101,11 +101,11 @@ Gunakan daftar tugas ini secara berurutan. Centang `[x]` hanya setelah perintah 
 ---
 
 ## Phase 6: Build, Deployment & Documentation
-- [ ] **T6.1: Production Docker & Nginx WebSocket Config**
+- [x] **T6.1: Production Docker & Nginx WebSocket Config**
   - **Input:** `prd.md` Section 2.
   - **Deliverable:** Multi-stage Dockerfiles teroptimasi, `nginx.conf` dengan konfigurasi `proxy_http_version 1.1`, `Upgrade`, `Connection "upgrade"`, dan `proxy_read_timeout 3600s` untuk sesi SSH/VNC jangka panjang.
   - **Verification:** `docker compose build` dan `docker compose up -d` berjalan sehat.
-- [ ] **T6.2: Operational Documentation (`README.md`)**
+- [x] **T6.2: Operational Documentation (`README.md`)**
   - **Input:** `.env.example` & `docker-compose.yml`.
   - **Deliverable:** Panduan setup Firebase Console, cara membuat `PVEAPIToken` di Proxmox dengan privilege yang tepat, konfigurasi Cloudflare Tunnel / Nginx Proxy Manager, dan troubleshooting WebSocket.
   - **Verification:** Semua variabel environment di `.env.example` terdokumentasi di `README.md`.
