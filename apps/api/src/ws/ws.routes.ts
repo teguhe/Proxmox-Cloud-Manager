@@ -194,6 +194,10 @@ export async function wsRoutes(app: FastifyInstance): Promise<void> {
           rejectUnauthorized: node.verifyTls,
         });
 
+        upstream.on('open', () => {
+          upstream.send(`${proxy.user}:${proxy.ticket}\n`);
+        });
+
         await recordActivityLog({
           userId: ticket.userId,
           userEmail: ticket.userEmail,
