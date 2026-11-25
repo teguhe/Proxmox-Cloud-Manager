@@ -61,27 +61,27 @@ Gunakan daftar tugas ini secara berurutan. Centang `[x]` hanya setelah perintah 
 ---
 
 ## Phase 4: Frontend UI, State Management & Styling
-- [ ] **T4.1: Frontend Base, Theme Toggle & Firebase Auth**
+- [x] **T4.1: Frontend Base, Theme Toggle & Firebase Auth**
   - **Input:** `prd.md` Section 3.
   - **Deliverable:** Setup Vite + Tailwind CSS v4 + Shadcn UI, ThemeProvider (Light/Dark toggle), Firebase Client Auth (Google Sign-In), API client dengan auto-attach Bearer token, AppShell (Sidebar RBAC + Header), dan halaman `PendingAccessPage` untuk role `no_access`.
   - **Verification:** `pnpm --filter web build` sukses; toggle Light/Dark bekerja persisten.
-- [ ] **T4.2: Dashboard Monitoring Page**
+- [x] **T4.2: Dashboard Monitoring Page**
   - **Input:** `prd.md` Sections 3 & 5.
   - **Deliverable:** Summary cards (Total Node Online/Offline, Total vCPU, RAM, Storage, Running/Stopped VMs), tabel status node standalone, dan daftar VM/LXC cepat sesuai hak akses.
   - **Verification:** Render responsif di desktop & mobile, menampilkan status `Unreachable` secara graceful jika ada node offline.
-- [ ] **T4.3: Manajemen VPS & Provisioning Wizard (3 Metode)**
+- [x] **T4.3: Manajemen VPS & Provisioning Wizard (3 Metode)**
   - **Input:** `prd.md` Section 5 (US-03, US-04, US-05).
   - **Deliverable:** Tabel VPS lintas node dengan filter/pencarian, tombol Power Actions (Start/Stop/Shutdown/Reboot), Wizard "Buat VPS" dengan 3 tab (**Clone Template + Cloud-Init**, **Install dari ISO**, **LXC Container**) lengkap dengan task progress tracker, serta drawer/modal assignment operator.
   - **Verification:** Form validasi Zod berjalan di semua 3 tab provisioning.
-- [ ] **T4.4: Console Window (noVNC) & SSH over HTTPS (xterm.js)**
+- [x] **T4.4: Console Window (noVNC) & SSH over HTTPS (xterm.js)**
   - **Input:** `prd.md` Section 5 (US-05).
   - **Deliverable:** Komponen `VncConsoleModal` (`@novnc/novnc`) dan `SshTerminalModal` (`@xterm/xterm` + fit addon) dengan pilihan mode **Proxmox Termproxy** atau **Direct SSH (Input Host/Port/User/Password atau Private Key)**.
   - **Verification:** Terminal dapat di-resize, reconnect, dan membersihkan koneksi WebSocket saat modal ditutup.
-- [ ] **T4.5: Manajemen Node, User & Akses**
+- [x] **T4.5: Manajemen Node, User & Akses**
   - **Input:** `prd.md` Sections 4 & 5.
   - **Deliverable:** Halaman Manajemen Node Proxmox (CRUD + Test Connection), Halaman Manajemen User (ubah role, nonaktifkan/hapus, dengan badge "Protected" & tombol terkunci untuk `teguhe@gmail.com`), dan Halaman Manajemen Akses (matriks assignment multi-VPS per operator).
   - **Verification:** Menu & route terproteksi otomatis hanya untuk `super_admin` dan `admin`.
-- [ ] **T4.6: Statistik Penggunaan (RRD), Laporan & Log Aktivitas**
+- [x] **T4.6: Statistik Penggunaan (RRD), Laporan & Log Aktivitas**
   - **Input:** `prd.md` Section 5 (US-06).
   - **Deliverable:** Halaman Statistik dengan selector Node/VM & timeframe (`hour`, `day`, `week`, `month`, `year`) menggunakan `Recharts` (CPU, RAM, Disk I/O, Network); Halaman Laporan dengan tombol unduh PDF/XLSX/CSV; Halaman Log Aktivitas dengan filter tanggal, user, dan jenis aksi.
   - **Verification:** Grafik menyesuaikan warna Light/Dark mode dan tombol export memicu unduhan file.
