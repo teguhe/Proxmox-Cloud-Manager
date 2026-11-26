@@ -28,6 +28,29 @@ export function DashboardPage() {
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">Dashboard Monitoring</h1>
 
+      <div className="p-5 rounded-xl border border-[#E2E8F0] dark:border-[#27272A] bg-white dark:bg-[#18181B]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 className="text-base font-semibold">
+              Selamat datang, {user?.displayName || user?.email || 'Admin'}!
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-zinc-400 mt-1">
+              <span className="font-medium text-slate-800 dark:text-zinc-200">
+                TP Cloud Manager
+              </span>{' '}
+              adalah platform manajemen terpusat untuk memantau dan mengelola node Proxmox VE,
+              Virtual Machine (QEMU) &amp; Container (LXC), statistik resource RRD, akses operator,
+              serta ekspor laporan sistem.
+            </p>
+          </div>
+          {user?.role && (
+            <span className="self-start sm:self-center inline-flex px-2.5 py-1 rounded-full text-xs font-medium uppercase bg-blue-50 text-[#2563EB] dark:bg-blue-950/50 dark:text-blue-400">
+              {user.role.replace('_', ' ')}
+            </span>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {canViewNodes && (
           <div className="p-4 rounded-xl border border-[#E2E8F0] dark:border-[#27272A] bg-white dark:bg-[#18181B]">

@@ -15,6 +15,7 @@ import { AccessPage } from './pages/AccessPage';
 import { StatsPage } from './pages/StatsPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { LogsPage } from './pages/LogsPage';
+import { AboutPage } from './pages/AboutPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -97,6 +98,7 @@ function AppRoutes() {
           }
         />
         <Route path="/logs" element={<LogsPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppShell>

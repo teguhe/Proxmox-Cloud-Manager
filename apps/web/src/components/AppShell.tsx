@@ -1,8 +1,10 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Activity,
+  ChevronDown,
   FileBarChart,
+  Info,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -16,6 +18,7 @@ import {
 import type { UserRole } from 'shared';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { auth } from '../lib/firebase';
 
 interface NavItem {
   label: string;
@@ -73,6 +76,12 @@ const NAV_ITEMS: NavItem[] = [
     icon: Activity,
     roles: ['super_admin', 'admin', 'operator', 'audit'],
   },
+  {
+    label: 'About App',
+    to: '/about',
+    icon: Info,
+    roles: ['super_admin', 'admin', 'operator', 'audit'],
+  },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -80,6 +89,23 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const photoUrl = auth.currentUser?.photoURL ?? undefined;
+  const initials = (user?.displayName || user?.email || 'A')
+    .slice(0, 2)
+    .toUpperCase();
 
   const visibleNav = NAV_ITEMS.filter(
     (item) => user && item.roles.includes(user.role)
@@ -127,16 +153,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
-
-        <div className="p-3 border-t border-[#E2E8F0] dark:border-[#27272A]">
-          <button
-            onClick={logout}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
-          >
-            <LogOut className="w-4 h-4 shrink-0" />
-            {!collapsed && <span>Sign Out</span>}
-          </button>
-        </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
@@ -159,13 +175,61 @@ export function AppShell({ children }: { children: ReactNode }) {
             </button>
 
             {user && (
-              <div className="flex items-center gap-2.5">
-                <div className="text-right hidden sm:block">
-                  <div className="text-xs font-medium">{user.email}</div>
-                  <div className="text-[11px] font-mono uppercase text-[#2563EB] dark:text-[#3B82F6]">
-                    {user.role}
+              <div className="relative" ref={profileRef}>
+                <button
+                  type="button"
+                  onClick={() => setProfileOpen((o) => !o)}
+                  className="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  {photoUrl ? (
+                    <img
+                      src={photoUrl}
+                      alt={user.displayName || user.email}
+                      referrerPolicy="no-referrer"
+                      className="w-8 h-8 rounded-full object-cover border border-[#E2E8F0] dark:border-[#27272A]"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-[#2563EB] text-white text-xs font-semibold flex items-center justify-center">
+                      {initials}
+                    </div>
+                  )}
+                  <div className="text-right hidden sm:block">
+                    <div className="text-xs font-medium">{user.email}</div>
+                    <div className="text-[11px] font-mono uppercase text-[#2563EB] dark:text-[#3B82F6]">
+                      {user.role}
+                    </div>
                   </div>
-                </div>
+                  <ChevronDown className="w-4 h-4 text-slate-500 dark:text-zinc-400" />
+                </button>
+
+                {profileOpen && (
+                  <div className="absolute right-0 mt-2 w-60 rounded-xl border border-[#E2E8F0] dark:border-[#27272A] bg-white dark:bg-[#18181B] shadow-lg py-2 z-50">
+                    <div className="px-4 py-2.5 border-b border-[#E2E8F0] dark:border-[#27272A]">
+                      <div className="text-sm font-medium truncate">
+                        {user.displayName || 'Admin'}
+                      </div>
+                      <div className="text-xs text-slate-500 dark:text-zinc-400 truncate">
+                        {user.email}
+                      </div>
+                      <div className="text-[11px] font-mono uppercase text-[#2563EB] dark:text-[#3B82F6] mt-1">
+                        {user.role}
+                      </div>
+                    </div>
+                    <div className="p-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProfileOpen(false);
+                          logout();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
+                      >
+                        <LogOut className="w-4 h-4 shrink-0" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

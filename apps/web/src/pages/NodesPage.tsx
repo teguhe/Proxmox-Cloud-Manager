@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2 } from 'lucide-react';
+import { Check, Pencil, Plus, Trash2, X } from 'lucide-react';
 import type { ProxmoxNodeStatusDto } from 'shared';
 import { apiFetch } from '../lib/api';
 
@@ -13,6 +13,8 @@ export function NodesPage() {
   const [apiTokenId, setApiTokenId] = useState('');
   const [apiTokenSecret, setApiTokenSecret] = useState('');
   const [verifyTls, setVerifyTls] = useState(false);
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
 
   const { data } = useQuery({
     queryKey: ['nodes'],
@@ -38,6 +40,19 @@ export function NodesPage() {
       setHost('');
       setApiTokenId('');
       setApiTokenSecret('');
+      qc.invalidateQueries({ queryKey: ['nodes'] });
+    },
+  });
+
+  const renameMutation = useMutation({
+    mutationFn: ({ id, newName }: { id: string; newName: string }) =>
+      apiFetch(`/nodes/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ name: newName }),
+      }),
+    onSuccess: () => {
+      setEditingNodeId(null);
+      setEditingName('');
       qc.invalidateQueries({ queryKey: ['nodes'] });
     },
   });
@@ -130,18 +145,80 @@ export function NodesPage() {
           <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#27272A]">
             {data?.nodes.map((n) => (
               <tr key={n.id}>
-                <td className="px-4 py-3 font-medium">{n.name}</td>
+                <td className="px-4 py-3 font-medium">
+                  {editingNodeId === n.id ? (
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && editingName.trim()) {
+                            renameMutation.mutate({ id: n.id, newName: editingName.trim() });
+                          } else if (e.key === 'Escape') {
+                            setEditingNodeId(null);
+                          }
+                        }}
+                        autoFocus
+                        className="px-2 py-1 text-sm rounded border border-[#E2E8F0] dark:border-[#27272A] bg-transparent w-40"
+                      />
+                      <button
+                        onClick={() => {
+                          if (editingName.trim()) {
+                            renameMutation.mutate({ id: n.id, newName: editingName.trim() });
+                          }
+                        }}
+                        disabled={renameMutation.isPending}
+                        title="Simpan"
+                        className="p-1 rounded text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                      >
+                        <Check className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setEditingNodeId(null)}
+                        title="Batal"
+                        className="p-1 rounded text-slate-500 hover:bg-slate-100 dark:hover:bg-zinc-800"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    n.name
+                  )}
+                </td>
                 <td className="px-4 py-3 font-mono text-xs">
                   {n.host}:{n.port} ({n.pveNodeName})
                 </td>
-                <td className="px-4 py-3 text-xs">{n.status}</td>
-                <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => deleteMutation.mutate(n.id)}
-                    className="p-1.5 rounded text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                <td className="px-4 py-3">
+                  <span
+                    className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                      n.status === 'online'
+                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
+                        : 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400'
+                    }`}
                   >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                    {n.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <div className="inline-flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        setEditingNodeId(n.id);
+                        setEditingName(n.name);
+                      }}
+                      title="Ubah Nama Node"
+                      className="p-1.5 rounded text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => deleteMutation.mutate(n.id)}
+                      title="Hapus Node"
+                      className="p-1.5 rounded text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

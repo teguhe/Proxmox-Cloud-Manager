@@ -131,7 +131,8 @@ export async function reportsRoutes(app: FastifyInstance): Promise<void> {
           .send(Buffer.from(buffer));
       }
 
-      const PdfPrinterCtor = PdfPrinter as unknown as new (
+      const PdfPrinterCtor = ((PdfPrinter as unknown as { default?: unknown }).default ??
+        PdfPrinter) as new (
         fonts: typeof PDF_FONTS
       ) => {
         createPdfKitDocument: (doc: unknown) => NodeJS.ReadableStream & { end: () => void };

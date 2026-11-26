@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Server } from 'lucide-react';
+import { Moon, Server, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 export function LoginPage() {
   const { loginWithGoogle } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -20,7 +22,20 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] dark:bg-[#09090B] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] dark:bg-[#09090B] p-4 relative">
+      <button
+        type="button"
+        onClick={toggleTheme}
+        aria-label="Toggle Theme"
+        className="absolute top-4 right-4 p-2 rounded-lg border border-[#E2E8F0] dark:border-[#27272A] bg-white dark:bg-[#18181B] hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+      >
+        {theme === 'dark' ? (
+          <Sun className="w-4 h-4 text-amber-400" />
+        ) : (
+          <Moon className="w-4 h-4 text-slate-700" />
+        )}
+      </button>
+
       <div className="w-full max-w-md rounded-xl border border-[#E2E8F0] dark:border-[#27272A] bg-white dark:bg-[#18181B] p-8 shadow-sm">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-[#2563EB] dark:text-[#3B82F6]">
@@ -51,6 +66,10 @@ export function LoginPage() {
         >
           {busy ? 'Signing in...' : 'Sign in with Google'}
         </button>
+
+        <div className="mt-6 pt-4 border-t border-[#E2E8F0] dark:border-[#27272A] text-center text-xs text-slate-500 dark:text-zinc-400">
+          Developer: <span className="font-medium text-slate-700 dark:text-zinc-300">Teguh Prasetyo</span>
+        </div>
       </div>
     </div>
   );
