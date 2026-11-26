@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { apiFetch } from '../lib/api';
 import { VncConsoleModal } from '../components/VncConsoleModal';
 import { SshTerminalModal } from '../components/SshTerminalModal';
+import { GuacamoleModal } from '../components/GuacamoleModal';
 
 export function VmsPage() {
   const { user } = useAuth();
@@ -13,6 +14,7 @@ export function VmsPage() {
   const [search, setSearch] = useState('');
   const [vncVm, setVncVm] = useState<VmSummaryDto | null>(null);
   const [sshVm, setSshVm] = useState<VmSummaryDto | null>(null);
+  const [guacVm, setGuacVm] = useState<VmSummaryDto | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [wizardTab, setWizardTab] = useState<'clone' | 'iso' | 'lxc'>('clone');
 
@@ -213,6 +215,13 @@ export function VmsPage() {
                         >
                           <Terminal className="w-3.5 h-3.5" />
                         </button>
+                        <button
+                          onClick={() => setGuacVm(vm)}
+                          title="Guacamole Remote (RDP / VNC / SSH)"
+                          className="px-1.5 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-zinc-800 text-emerald-600 dark:text-emerald-400 text-[11px] font-mono font-semibold"
+                        >
+                          RDP
+                        </button>
                       </div>
                     )}
                   </td>
@@ -369,6 +378,7 @@ export function VmsPage() {
 
       {vncVm && <VncConsoleModal vm={vncVm} onClose={() => setVncVm(null)} />}
       {sshVm && <SshTerminalModal vm={sshVm} onClose={() => setSshVm(null)} />}
+      {guacVm && <GuacamoleModal vm={guacVm} onClose={() => setGuacVm(null)} />}
     </div>
   );
 }

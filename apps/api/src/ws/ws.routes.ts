@@ -1,3 +1,4 @@
+import net from 'node:net';
 import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
 import WebSocket from 'ws';
@@ -353,6 +354,159 @@ export async function wsRoutes(app: FastifyInstance): Promise<void> {
 
     socket.on('close', () => {
       ssh.end();
+    });
+  });
+
+  app.get<{
+    Params: { nodeId: string; vmType: string; vmid: string };
+    Querystring: {
+      token?: string;
+      protocol?: string;
+      host?: string;
+      port?: string;
+      username?: string;
+      password?: string;
+    };
+  }>('/guacamole/:nodeId/:vmType/:vmid', { websocket: true }, async (socket, request) => {
+    const vmTypeParsed = vmTypeSchema.safeParse(request.params.vmType);
+    const vmid = Number(request.params.vmid);
+    const {
+      token,
+      protocol = 'rdp',
+      host,
+      port,
+      username = '',
+      password = '',
+    } = request.query;
+
+    if (!vmTypeParsed.success || Number.isNaN(vmid) || !token || !host) {
+      socket.close(4001, 'Invalid parameters or missing token/host');
+      return;
+    }
+
+    if (!['rdp', 'vnc', 'ssh'].includes(protocol)) {
+      socket.close(4001, 'Unsupported Guacamole protocol');
+      return;
+    }
+
+    const ticket = consumeWsTicket(
+      token,
+      request.params.nodeId,
+      vmTypeParsed.data,
+      vmid
+    );
+    if (!ticket) {
+      socket.close(4001, 'Invalid or expired WS ticket');
+      return;
+    }
+
+    await recordActivityLog({
+      userId: ticket.userId,
+      userEmail: ticket.userEmail,
+      userRole: ticket.userRole,
+      action: 'GUACAMOLE_CONNECT',
+      targetType: vmTypeParsed.data,
+      targetId: `${request.params.nodeId}:${vmid}:${protocol}`,
+      metadata: { host, port, protocol },
+      ipAddress: request.ip,
+      userAgent: request.headers['user-agent'] ?? null,
+    });
+
+    const guacdHost = process.env.GUACD_HOST || '127.0.0.1';
+    const guacdPort = Number(process.env.GUACD_PORT || 4822);
+
+    const encodeInstruction = (elements: string[]): string =>
+      elements.map((el) => `${el.length}.${el}`).join(',') + ';';
+
+    const parseFirstInstruction = (raw: string): string[] => {
+      const semi = raw.indexOf(';');
+      if (semi === -1) return [];
+      const body = raw.slice(0, semi);
+      const parts: string[] = [];
+      let idx = 0;
+      while (idx < body.length) {
+        const dot = body.indexOf('.', idx);
+        if (dot === -1) break;
+        const len = Number(body.slice(idx, dot));
+        const val = body.slice(dot + 1, dot + 1 + len);
+        parts.push(val);
+        idx = dot + 1 + len + 1; // skip comma
+      }
+      return parts;
+    };
+
+    const guacdSocket = net.connect(guacdPort, guacdHost);
+    let handshakeDone = false;
+    let buffer = '';
+
+    const connParams: Record<string, string> = {
+      hostname: host,
+      port: port || (protocol === 'rdp' ? '3389' : protocol === 'vnc' ? '5900' : '22'),
+      username,
+      password,
+      'ignore-cert': 'true',
+      security: 'any',
+    };
+
+    guacdSocket.on('connect', () => {
+      guacdSocket.write(encodeInstruction(['select', protocol]));
+    });
+
+    guacdSocket.on('data', (chunk: Buffer) => {
+      if (handshakeDone) {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(chunk.toString('utf8'));
+        }
+        return;
+      }
+
+      buffer += chunk.toString('utf8');
+      const semiIdx = buffer.indexOf(';');
+      if (semiIdx === -1) return;
+
+      const first = buffer.slice(0, semiIdx + 1);
+      const rest = buffer.slice(semiIdx + 1);
+      const args = parseFirstInstruction(first);
+
+      if (args[0] === 'args') {
+        buffer = rest;
+        const connectValues = args.slice(1).map((name) => connParams[name] ?? '');
+        guacdSocket.write(encodeInstruction(['size', '1024', '768', '96']));
+        guacdSocket.write(encodeInstruction(['audio']));
+        guacdSocket.write(encodeInstruction(['video']));
+        guacdSocket.write(encodeInstruction(['image', 'image/png', 'image/jpeg']));
+        guacdSocket.write(encodeInstruction(['connect', ...connectValues]));
+        handshakeDone = true;
+        if (rest.length > 0 && socket.readyState === WebSocket.OPEN) {
+          socket.send(rest);
+        }
+      }
+    });
+
+    socket.on('message', (data) => {
+      const msg = typeof data === 'string' ? data : data.toString('utf8');
+      if (!guacdSocket.destroyed) {
+        guacdSocket.write(msg);
+      }
+    });
+
+    guacdSocket.on('error', (err) => {
+      console.error('[Guacamole] guacd error:', err.message);
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.close(1011, `guacd error: ${err.message}`);
+      }
+    });
+
+    guacdSocket.on('close', () => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.close();
+      }
+    });
+
+    socket.on('close', () => {
+      if (!guacdSocket.destroyed) {
+        guacdSocket.end();
+      }
     });
   });
 }

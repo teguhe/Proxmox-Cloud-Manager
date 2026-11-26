@@ -17,6 +17,11 @@ services:
       timeout: 5s
       retries: 5
 
+  guacd:
+    image: guacamole/guacd:1.5.5
+    container_name: proxmox_mgr_guacd
+    restart: unless-stopped
+
   api:
     build:
       context: .
@@ -29,6 +34,8 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-proxmox_mgr}:${POSTGRES_PASSWORD:-proxmox_mgr_secret}@postgres:5432/${POSTGRES_DB:-proxmox_cloud_manager}
       PORT: 3001
       HOST: 0.0.0.0
+      GUACD_HOST: guacd
+      GUACD_PORT: 4822
     depends_on:
       postgres:
         condition: service_healthy

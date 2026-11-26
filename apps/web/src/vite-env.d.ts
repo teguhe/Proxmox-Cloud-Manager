@@ -14,3 +14,5 @@ declare module '@novnc/novnc' {
     disconnect(): void;
   }
 }
+
+declare module 'guacamole-common-js';
