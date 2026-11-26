@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Moon, Server, Sun } from 'lucide-react';
+import { Moon, Send, Server, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -67,8 +67,19 @@ export function LoginPage() {
           {busy ? 'Signing in...' : 'Sign in with Google'}
         </button>
 
-        <div className="mt-6 pt-4 border-t border-[#E2E8F0] dark:border-[#27272A] text-center text-xs text-slate-500 dark:text-zinc-400">
-          Developer: <span className="font-medium text-slate-700 dark:text-zinc-300">Teguh Prasetyo</span>
+        <div className="mt-6 pt-4 border-t border-[#E2E8F0] dark:border-[#27272A] flex flex-col items-center gap-1.5 text-xs text-slate-500 dark:text-zinc-400">
+          <div>
+            Dev : <span className="font-medium text-slate-700 dark:text-zinc-300">teguhe@gmail.com</span>
+          </div>
+          <a
+            href="https://t.me/teguhe"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-[#2563EB] dark:text-[#3B82F6] hover:underline"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span>@teguhe</span>
+          </a>
         </div>
       </div>
     </div>

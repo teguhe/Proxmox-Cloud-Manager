@@ -1,4 +1,4 @@
-import { Info, Server, Shield, User } from 'lucide-react';
+import { Info, Send, Server, Shield, User } from 'lucide-react';
 
 export function AboutPage() {
   return (
@@ -24,8 +24,16 @@ export function AboutPage() {
           <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-zinc-900/50">
             <User className="w-5 h-5 text-[#2563EB]" />
             <div>
-              <div className="text-xs text-slate-500 dark:text-zinc-400">Developer</div>
-              <div className="text-sm font-semibold">Teguh Prasetyo</div>
+              <div className="text-xs text-slate-500 dark:text-zinc-400">Dev : teguhe@gmail.com</div>
+              <a
+                href="https://t.me/teguhe"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2563EB] dark:text-[#3B82F6] hover:underline mt-0.5"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>@teguhe</span>
+              </a>
             </div>
           </div>
 
