@@ -1,0 +1,43 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.4.3",
+    "@fastify/rate-limit": "^11.3.0",
+    "@fastify/websocket": "^11.3.7",
+    "dotenv": "^18.0.10",
+    "drizzle-orm": "^0.45.4",
+    "exceljs": "^4.4.0",
+    "fastify": "^5.12.8",
+    "firebase-admin": "^14.5.1",
+    "pdfmake": "^0.3.15",
+    "postgres": "^4.1.1",
+    "shared": "workspace:*",
+    "ssh2": "^1.17.0",
+    "undici": "^8.13.1",
+    "ws": "^8.23.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@types/pdfmake": "^0.3.3",
+    "@types/ssh2": "^1.15.6",
+    "@types/ws": "^8.18.2",
+    "drizzle-kit": "^0.31.11",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

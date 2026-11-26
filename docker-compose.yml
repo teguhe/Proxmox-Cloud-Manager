@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: proxmox_mgr_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-proxmox_mgr}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-proxmox_mgr_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-proxmox_cloud_manager}
+    ports:
+      - '${POSTGRES_PORT:-5433}:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-proxmox_mgr} -d ${POSTGRES_DB:-proxmox_cloud_manager}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  guacd:
+    image: guacamole/guacd:1.5.5
+    container_name: proxmox_mgr_guacd
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: proxmox_mgr_api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-proxmox_mgr}:${POSTGRES_PASSWORD:-proxmox_mgr_secret}@postgres:5432/${POSTGRES_DB:-proxmox_cloud_manager}
+      PORT: 3001
+      HOST: 0.0.0.0
+      GUACD_HOST: guacd
+      GUACD_PORT: 4822
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - '3001:3001'
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_FIREBASE_API_KEY: ${VITE_FIREBASE_API_KEY}
+        VITE_FIREBASE_AUTH_DOMAIN: ${VITE_FIREBASE_AUTH_DOMAIN}
+        VITE_FIREBASE_PROJECT_ID: ${VITE_FIREBASE_PROJECT_ID}
+        VITE_FIREBASE_APP_ID: ${VITE_FIREBASE_APP_ID}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+    container_name: proxmox_mgr_web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - '8080:80'
+
+volumes:
+  pgdata:
