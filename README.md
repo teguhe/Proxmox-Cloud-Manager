@@ -1,13 +1,29 @@
 # TP Cloud Manager
 
-Aplikasi manajemen Virtual Private Server (VPS) berbasis web terpusat untuk mengelola beberapa node **Proxmox VE standalone** secara aman melalui satu antarmuka *Clean Modern Cloud Console* (Light/Dark Mode), lengkap dengan autentikasi Firebase Google, kontrol akses granular (RBAC), provisioning VM/LXC multi-metode, akses Console (`noVNC`) & SSH over HTTPS (`xterm.js`), statistik RRD real-time, pelaporan (PDF/XLSX/CSV), dan audit log.
+Aplikasi manajemen Virtual Private Server (VPS) berbasis web terpusat untuk mengelola beberapa node **Proxmox VE standalone** secara aman melalui satu antarmuka *Clean Modern Cloud Console* (Light/Dark Mode), lengkap dengan autentikasi Firebase Google, kontrol akses granular (RBAC), provisioning VM/LXC multi-metode, akses Console (`noVNC`), SSH over HTTPS (`xterm.js`), **Remote Desktop RDP/VNC/SSH via Apache Guacamole (`guacd`)**, statistik RRD multi-VM real-time, pelaporan (PDF/XLSX/CSV), dan audit log.
+
+---
+
+## Fitur Utama
+
+- **Dashboard Monitoring**: Card greeting admin, ringkasan aplikasi, total node online, VM/LXC aktif, alokasi vCPU & RAM, serta status tiap node.
+- **Proxmox Nodes**: Tambah/hapus node Proxmox VE standalone, badge status berwarna (`online` / `offline` / `unreachable`), serta tombol ubah nama node secara inline.
+- **VPS & Containers**: Daftar VM (QEMU) & Container (LXC), kontrol power (*Start, Stop, Reboot*), provisioning (Clone, ISO, LXC), serta akses remote:
+  - **noVNC Console**
+  - **SSH Terminal** (`xterm.js`)
+  - **Apache Guacamole** (`RDP` untuk Windows, `VNC`, dan `SSH` via `guacd`)
+- **Statistics (RRD) Multi-VM**: Pemilih multi-VM terurut berdasarkan nama di sebelah kiri, memantau **CPU Usage (%)**, **Memory Usage (MB)**, **Disk I/O (KB/s)**, dan **Network I/O (KB/s)** untuk beberapa VM sekaligus dalam satu grafik.
+- **Reports & Export**: Unduh laporan *Inventory*, *Allocation*, dan *Activity* dalam format **PDF**, **XLSX**, dan **CSV**.
+- **Navbar & Login**: Dropdown profil admin dengan foto akun Google & tombol Sign Out di pojok kanan navbar, serta halaman Login dengan toggle Light/Dark mode dan info developer.
+- **About App**: Halaman informasi aplikasi dan kontak developer (`Dev : teguhe@gmail.com`, Telegram `@teguhe`).
 
 ---
 
 ## Arsitektur & Tech Stack
 
-- **Frontend:** React 19, Vite, TypeScript, Tailwind CSS v4, TanStack Query v5, Recharts, `@novnc/novnc`, `@xterm/xterm`
+- **Frontend:** React 19, Vite, TypeScript, Tailwind CSS v4, TanStack Query v5, Recharts, `@novnc/novnc`, `@xterm/xterm`, `guacamole-common-js`
 - **Backend:** Node.js 22 LTS, Fastify v5, `@fastify/websocket`, `undici`, `ssh2`, `exceljs`, `pdfmake`
+- **Remote Gateway:** Apache Guacamole (`guacamole/guacd:1.5.5`)
 - **Database:** PostgreSQL 16 + Drizzle ORM
 - **Auth:** Firebase Auth (Google Sign-In) + Firebase Admin SDK
 - **Deployment:** Docker & Docker Compose + Nginx Reverse Proxy (WebSocket-ready)
@@ -73,3 +89,5 @@ pnpm --filter api db:push
 | `VITE_FIREBASE_PROJECT_ID` | Firebase Project ID (Frontend) |
 | `VITE_FIREBASE_APP_ID` | Firebase Web App ID |
 | `VITE_API_BASE_URL` | Base URL API untuk frontend (default `/api/v1`) |
+| `GUACD_HOST` | Hostname daemon Apache Guacamole (`guacd` di Docker) |
+| `GUACD_PORT` | Port daemon Apache Guacamole (default `4822`) |
