@@ -37,7 +37,13 @@ export function StatsPage() {
     queryFn: () => apiFetch<{ vms: VmSummaryDto[] }>('/vms'),
   });
 
-  const vms = vmsData?.vms ?? [];
+  const vms = useMemo(
+    () =>
+      [...(vmsData?.vms ?? [])].sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+      ),
+    [vmsData?.vms]
+  );
 
   useEffect(() => {
     if (vms.length > 0 && selectedKeys.length === 0) {
@@ -126,69 +132,80 @@ export function StatsPage() {
         </select>
       </div>
 
-      <div className="p-4 rounded-xl border border-[#E2E8F0] dark:border-[#27272A] bg-white dark:bg-[#18181B] space-y-2">
-        <div className="text-xs font-medium text-slate-500 dark:text-zinc-400">
-          Pilih VM / Container untuk dimonitor ({selectedVms.length} dipilih):
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {vms.map((v) => {
-            const key = vmKey(v);
-            const checked = selectedKeys.includes(key);
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => toggleVm(key)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                  checked
-                    ? 'bg-[#2563EB] text-white border-[#2563EB]'
-                    : 'border-[#E2E8F0] dark:border-[#27272A] text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
-                }`}
-              >
-                {v.name} (VMID {v.vmid})
-              </button>
-            );
-          })}
-          {vms.length === 0 && (
-            <span className="text-xs text-slate-500">Tidak ada VM tersedia.</span>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {charts.map((chart) => (
-          <div
-            key={chart.prefix}
-            className="p-5 rounded-xl border border-[#E2E8F0] dark:border-[#27272A] bg-white dark:bg-[#18181B]"
-          >
-            <h2 className="text-sm font-medium mb-4">{chart.title}</h2>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={mergedData}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="time" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Legend />
-                  {selectedVms.map((vm, idx) => {
-                    const key = vmKey(vm);
-                    return (
-                      <Line
-                        key={key}
-                        type="monotone"
-                        dataKey={`${chart.prefix}_${key}`}
-                        name={`${vm.name} (${vm.vmid})`}
-                        stroke={CHART_COLORS[idx % CHART_COLORS.length]}
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                    );
-                  })}
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        <div className="w-full lg:w-72 shrink-0 p-4 rounded-xl border border-[#E2E8F0] dark:border-[#27272A] bg-white dark:bg-[#18181B] space-y-3">
+          <div className="text-xs font-medium text-slate-500 dark:text-zinc-400">
+            Pilih VM / Container ({selectedVms.length} dipilih):
           </div>
-        ))}
+          <div className="flex flex-col gap-2 max-h-[640px] overflow-y-auto pr-1">
+            {vms.map((v) => {
+              const key = vmKey(v);
+              const checked = selectedKeys.includes(key);
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => toggleVm(key)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                    checked
+                      ? 'bg-[#2563EB] text-white border-[#2563EB]'
+                      : 'border-[#E2E8F0] dark:border-[#27272A] text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="truncate">{v.name}</div>
+                  <div
+                    className={`text-[11px] font-mono ${
+                      checked ? 'text-blue-100' : 'text-slate-400 dark:text-zinc-500'
+                    }`}
+                  >
+                    VMID {v.vmid} • {v.vmType.toUpperCase()}
+                  </div>
+                </button>
+              );
+            })}
+            {vms.length === 0 && (
+              <span className="text-xs text-slate-500">Tidak ada VM tersedia.</span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex-1 w-full p-5 rounded-xl border border-[#E2E8F0] dark:border-[#27272A] bg-white dark:bg-[#18181B]">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {charts.map((chart) => (
+              <div
+                key={chart.prefix}
+                className="p-4 rounded-lg border border-[#E2E8F0] dark:border-[#27272A] bg-slate-50/50 dark:bg-zinc-900/30"
+              >
+                <h2 className="text-sm font-medium mb-4">{chart.title}</h2>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={mergedData}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                      <XAxis dataKey="time" tick={{ fontSize: 11 }} />
+                      <YAxis tick={{ fontSize: 11 }} />
+                      <Tooltip />
+                      <Legend />
+                      {selectedVms.map((vm, idx) => {
+                        const key = vmKey(vm);
+                        return (
+                          <Line
+                            key={key}
+                            type="monotone"
+                            dataKey={`${chart.prefix}_${key}`}
+                            name={`${vm.name} (${vm.vmid})`}
+                            stroke={CHART_COLORS[idx % CHART_COLORS.length]}
+                            strokeWidth={2}
+                            dot={false}
+                          />
+                        );
+                      })}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
