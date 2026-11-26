@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { and, desc, gte, lte } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
-import PdfPrinter from 'pdfmake';
+import pdfmake from 'pdfmake';
 import { reportExportQuerySchema } from 'shared';
 import {
   activityLogs,
@@ -131,17 +131,20 @@ export async function reportsRoutes(app: FastifyInstance): Promise<void> {
           .send(Buffer.from(buffer));
       }
 
-      const PdfPrinterCtor = ((PdfPrinter as unknown as { default?: unknown }).default ??
-        PdfPrinter) as new (
-        fonts: typeof PDF_FONTS
-      ) => {
-        createPdfKitDocument: (doc: unknown) => NodeJS.ReadableStream & { end: () => void };
+      const pm = pdfmake as unknown as {
+        setFonts: (fonts: typeof PDF_FONTS) => void;
+        createPdf: (doc: unknown) => { getBuffer: () => Promise<Buffer> };
       };
-      const printer = new PdfPrinterCtor(PDF_FONTS);
+      pm.setFonts(PDF_FONTS);
       const docDefinition = {
         defaultStyle: { font: 'Helvetica', fontSize: 9 },
         content: [
-          { text: `TP Cloud Manager - ${type.toUpperCase()} Report`, fontSize: 14, bold: true, margin: [0, 0, 0, 10] as [number, number, number, number] },
+          {
+            text: `TP Cloud Manager - ${type.toUpperCase()} Report`,
+            fontSize: 14,
+            bold: true,
+            margin: [0, 0, 0, 10] as [number, number, number, number],
+          },
           {
             table: {
               headerRows: 1,
@@ -151,19 +154,12 @@ export async function reportsRoutes(app: FastifyInstance): Promise<void> {
         ],
       };
 
-      const pdfDoc = await printer.createPdfKitDocument(docDefinition);
-      const chunks: Buffer[] = [];
-      await new Promise<void>((resolve, reject) => {
-        pdfDoc.on('data', (chunk: Buffer) => chunks.push(chunk));
-        pdfDoc.on('end', () => resolve());
-        pdfDoc.on('error', (err: Error) => reject(err));
-        pdfDoc.end();
-      });
+      const pdfBuffer = await pm.createPdf(docDefinition).getBuffer();
 
       return reply
         .header('Content-Type', 'application/pdf')
         .header('Content-Disposition', `attachment; filename="${filename}"`)
-        .send(Buffer.concat(chunks));
+        .send(pdfBuffer);
     }
   );
 }
