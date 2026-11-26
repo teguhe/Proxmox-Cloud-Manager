@@ -184,7 +184,7 @@ export function StatsPage() {
                       <XAxis dataKey="time" tick={{ fontSize: 11 }} />
                       <YAxis tick={{ fontSize: 11 }} />
                       <Tooltip />
-                      <Legend wrapperStyle={{ fontSize: '11px' }} />
+                      <Legend wrapperStyle={{ fontSize: '9px' }} />
                       {selectedVms.map((vm, idx) => {
                         const key = vmKey(vm);
                         return (
